@@ -30,7 +30,7 @@ class Repository < ActiveRecord::Base
   end
 
   def total_files
-    self.collections.collect {|c| c.total_files}.sum
+    self.collections.collect { |c| c.total_files }.sum
   end
 
   #TODO - this will probably not be correct any more when we have more than one institution
@@ -48,6 +48,31 @@ class Repository < ActiveRecord::Base
 
   def repository
     self
+  end
+
+  include Rails.application.routes.url_helpers
+
+  def rdf_uri
+    RDF::URI('http://localhost:3000' + polymorphic_path(self))
+  end
+
+  def rdf_medusa_property_uri(name)
+    RDF::URI("https://medusa.library.illinois.edu/terms/#{name}")
+  end
+
+  def rdf_node(name, value)
+    [self.rdf_uri, rdf_medusa_property_uri(name), value]
+  end
+
+  def to_rdf
+    RDF::Graph.new.tap do |g|
+      g << rdf_node(:id, self.id)
+      g << rdf_node(:title, self.title)
+    end
+  end
+
+  def store_rdf
+    FusekiInteractor.instance.insert(self.to_rdf)
   end
 
 end
