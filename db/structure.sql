@@ -3148,57 +3148,6 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: view_bit_level_file_group_cfs_root_stats_two_ways; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW view_bit_level_file_group_cfs_root_stats_two_ways AS
- SELECT fg.id AS file_group_id,
-    round((fg.total_file_size * (1073741824)::numeric)) AS file_group_size,
-    fg.total_files AS file_group_count,
-    d.id AS cfs_directory_id,
-    d.tree_size AS cfs_directory_size,
-    d.tree_count AS cfs_directory_count
-   FROM (file_groups fg
-     LEFT JOIN cfs_directories d ON ((fg.id = d.parent_id)))
-  WHERE ((d.parent_type)::text = 'FileGroup'::text);
-
-
---
--- Name: view_cfs_directories_file_stats_two_ways; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW view_cfs_directories_file_stats_two_ways AS
- SELECT d.id,
-    d.tree_count,
-    d.tree_size,
-    (( SELECT count(*) AS count
-           FROM cfs_files f
-          WHERE (f.cfs_directory_id = d.id)) + ( SELECT sum(COALESCE(sd.tree_count, 0)) AS sum
-           FROM cfs_directories sd
-          WHERE (((sd.parent_type)::text = 'CfsDirectory'::text) AND (sd.parent_id = d.id)))) AS computed_count,
-    (( SELECT sum(COALESCE(f.size, (0)::numeric)) AS sum
-           FROM cfs_files f
-          WHERE (f.cfs_directory_id = d.id)) + ( SELECT sum(COALESCE(sd.tree_size, (0)::numeric)) AS sum
-           FROM cfs_directories sd
-          WHERE (((sd.parent_type)::text = 'CfsDirectory'::text) AND (sd.parent_id = d.id)))) AS computed_size
-   FROM cfs_directories d;
-
-
---
--- Name: view_cfs_directories_inconsistent_file_stats; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW view_cfs_directories_inconsistent_file_stats AS
- SELECT view_cfs_directories_file_stats_two_ways.id,
-    view_cfs_directories_file_stats_two_ways.tree_count,
-    view_cfs_directories_file_stats_two_ways.tree_size,
-    view_cfs_directories_file_stats_two_ways.computed_count,
-    view_cfs_directories_file_stats_two_ways.computed_size
-   FROM view_cfs_directories_file_stats_two_ways
-  WHERE ((view_cfs_directories_file_stats_two_ways.tree_count <> view_cfs_directories_file_stats_two_ways.computed_count) OR (view_cfs_directories_file_stats_two_ways.tree_size <> view_cfs_directories_file_stats_two_ways.computed_size));
-
-
---
 -- Name: view_cfs_files_to_parents; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -4863,7 +4812,7 @@ CREATE UNIQUE INDEX index_file_format_profiles_on_name ON file_format_profiles U
 -- Name: index_file_format_tests_on_cfs_file_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE UNIQUE INDEX index_file_format_tests_on_cfs_file_id ON file_format_tests USING btree (cfs_file_id);
+CREATE INDEX index_file_format_tests_on_cfs_file_id ON file_format_tests USING btree (cfs_file_id);
 
 
 --

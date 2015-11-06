@@ -9,6 +9,7 @@ class CfsFile < ActiveRecord::Base
   include Uuidable
   include Breadcrumb
   include CfsFileAmqp
+  include TripleStorable
 
   belongs_to :cfs_directory
   belongs_to :content_type
@@ -40,6 +41,9 @@ class CfsFile < ActiveRecord::Base
     text :name
     string :name, stored: true
   end
+
+  rdf_owners :cfs_directory
+  rdf_fields :name, :size, :md5_sum, content_type: :content_type_name
 
   def relative_path
     File.join(self.cfs_directory.relative_path, self.name)

@@ -1,8 +1,12 @@
 class ExternalFileGroup < FileGroup
+  include TripleStorable
 
   has_one :workflow_ingest, class_name: 'Workflow::Ingest'
 
   validates_absence_of :cfs_directory
+
+  rdf_owners :collection
+  rdf_fields :title
 
   def storage_level
     'external'

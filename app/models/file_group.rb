@@ -6,6 +6,7 @@ class FileGroup < ActiveRecord::Base
   include Breadcrumb
   include ResourceTypeable
   include EmailPersonAssociator
+  include TripleStorable
 
   belongs_to :collection
   #parent is a duplicate, but allows uniformity for events, i.e. we can do eventable.parent
@@ -42,6 +43,9 @@ class FileGroup < ActiveRecord::Base
   breadcrumbs parent: :collection, label: :title
   cascades_events parent: :collection
   cascades_red_flags parent: :collection
+
+  rdf_owners :collection
+  rdf_fields :title
 
   STORAGE_LEVEL_HASH = {'external' => 'ExternalFileGroup',
                         'bit-level store' => 'BitLevelFileGroup',

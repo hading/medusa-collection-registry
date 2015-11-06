@@ -2,10 +2,11 @@ require 'singleton'
 class FusekiInteractor < Object
   include Singleton
 
-  attr_accessor :url, :update_client, :query_client
+  attr_accessor :url, :update_client, :query_client, :config
 
   def initialize
-    self.url = 'http://localhost:3030/test'
+    self.config = YAML.load(File.join(Rails.root, 'config', 'triple_store.yml'))
+    self.url = config[Rails.env]['triple_store_base_url']
     self.query_client = SPARQL::Client.new(self.query_url)
     self.update_client = SPARQL::Client.new(self.update_url)
   end
@@ -22,6 +23,8 @@ class FusekiInteractor < Object
     self.url + '?default'
   end
 
+  #This replaces the whole default graph with rdf_graph and is likely
+  #not what you want.
   def upload(rdf_graph)
     turtle = rdf_graph.to_ttl
     HTTParty.put(upload_url, {body: turtle,
@@ -29,8 +32,20 @@ class FusekiInteractor < Object
                                         'Content-Length' => turtle.length.to_s}})
   end
 
+  def clear_all
+    upload(RDF::Graph.new)
+  end
+
   def insert(rdf_graph)
     self.update_client.insert_data(rdf_graph)
+  end
+
+  def insert_many(rdf_graph_collection)
+    big_graph = rdf_graph_collection.inject(RDF::Graph.new) do |acc, g|
+      acc << g
+      acc
+    end
+    insert(big_graph)
   end
 
 end
