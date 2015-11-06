@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'set'
 class BitLevelFileGroup < FileGroup
+  include TripleStorable
 
   has_many :virus_scans, dependent: :destroy, foreign_key: :file_group_id
   has_many :job_fits_directories, class_name: 'Job::FitsDirectory', foreign_key: :file_group_id
@@ -12,6 +13,9 @@ class BitLevelFileGroup < FileGroup
 
   delegate :pristine?, :ensure_file_at_absolute_path, :ensure_file_at_relative_path,
            :find_directory_at_relative_path, :find_file_at_relative_path, to: :cfs_directory
+
+  rdf_owners :collection
+  rdf_fields :title
 
   def ensure_cfs_directory
     physical_cfs_directory_path = expected_absolute_cfs_root_directory

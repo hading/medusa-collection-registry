@@ -11,6 +11,7 @@ class Collection < ActiveRecord::Base
   include CascadedRedFlaggable
   include ResourceTypeable
   include EmailPersonAssociator
+  include TripleStorable
 
   email_person_association(:contact)
 
@@ -48,6 +49,9 @@ class Collection < ActiveRecord::Base
   breadcrumbs parent: :repository, label: :title
   cascades_events parent: :repository
   cascades_red_flags parent: :repository
+
+  rdf_owners :repository
+  rdf_fields :title, :access_url, :description
 
   def total_size
     self.bit_level_file_groups.collect { |fg| fg.file_size }.sum

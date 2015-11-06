@@ -5,6 +5,7 @@ class Repository < ActiveRecord::Base
   include CascadedRedFlaggable
   include MedusaAutoHtml
   include EmailPersonAssociator
+  include TripleStorable
 
   email_person_association(:contact)
   belongs_to :institution
@@ -24,6 +25,9 @@ class Repository < ActiveRecord::Base
   breadcrumbs parent: nil, label: :title
   cascades_events parent: nil
   cascades_red_flags parent: nil
+
+  rdf_fields :title, :url
+  rdf_owners :institution
 
   def total_size
     self.collections.collect { |c| c.total_size }.sum
@@ -48,31 +52,6 @@ class Repository < ActiveRecord::Base
 
   def repository
     self
-  end
-
-  include Rails.application.routes.url_helpers
-
-  def rdf_uri
-    RDF::URI('http://localhost:3000' + polymorphic_path(self))
-  end
-
-  def rdf_medusa_property_uri(name)
-    RDF::URI("https://medusa.library.illinois.edu/terms/#{name}")
-  end
-
-  def rdf_node(name, value)
-    [self.rdf_uri, rdf_medusa_property_uri(name), value]
-  end
-
-  def to_rdf
-    RDF::Graph.new.tap do |g|
-      g << rdf_node(:id, self.id)
-      g << rdf_node(:title, self.title)
-    end
-  end
-
-  def store_rdf
-    FusekiInteractor.instance.insert(self.to_rdf)
   end
 
 end
