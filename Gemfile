@@ -98,6 +98,7 @@ gem 'render_anywhere', require: false
 
 gem 'rdf'
 gem 'rdf-turtle'
+gem 'sparql'
 gem 'sparql-client'
 
 group :development, :test do

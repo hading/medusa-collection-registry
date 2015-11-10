@@ -89,6 +89,11 @@ module TripleStorable
   # I don't know if sparql-client supports this except via submission
   # of an explicit sparql string. However, if the above is correct
   # I don't think there are any gotchas in constructing that string.
+  # An alternate way of doing this, probably not desirable but possible,
+  # would be to store the rdf graph outside of the triplestore when
+  # it is uploaded. Then when doing an update use it to do a delete/insert
+  # along with the new graph (which would then be serialized for the
+  # next update).
   def remove_rdf
 
   end
