@@ -85,6 +85,8 @@ GEM
       rinku (~> 1.5.0)
     auto_strip_attributes (2.0.6)
       activerecord (>= 3.0)
+    bcp47 (0.3.3)
+      i18n
     builder (3.2.2)
     bunny (2.2.0)
       amq-protocol (>= 2.0.0)
@@ -175,6 +177,8 @@ GEM
     ebnf (1.0.0)
       rdf (~> 1.1)
       sxp (~> 0.1, >= 0.1.3)
+    equivalent-xml (0.6.0)
+      nokogiri (>= 1.4.3)
     erubis (2.7.0)
     ethon (0.8.0)
       ffi (>= 1.3.0)
@@ -205,6 +209,7 @@ GEM
       haml (~> 4.0.0)
       nokogiri (~> 1.6.0)
       ruby_parser (~> 3.5)
+    htmlentities (4.3.4)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     httparty (0.13.7)
@@ -226,6 +231,9 @@ GEM
     jquery-ui-rails (5.0.5)
       railties (>= 3.2.16)
     json (1.8.3)
+    json-ld (1.99.0)
+      multi_json (~> 1.11)
+      rdf (~> 1.99)
     json_spec (1.1.4)
       multi_json (~> 1.0)
       rspec (>= 2.0, < 4.0)
@@ -240,6 +248,27 @@ GEM
       tilt
     libv8 (3.16.14.13)
     link_header (0.0.8)
+    linkeddata (1.99.0)
+      equivalent-xml (~> 0.6)
+      json-ld (~> 1.99)
+      nokogiri (~> 1.6)
+      rdf (~> 1.99)
+      rdf-aggregate-repo (~> 1.99)
+      rdf-isomorphic (~> 1.99)
+      rdf-json (~> 1.1, >= 1.1.2)
+      rdf-microdata (~> 2.0, >= 2.0.2)
+      rdf-n3 (~> 1.99)
+      rdf-rdfa (~> 1.99)
+      rdf-rdfxml (~> 1.1, >= 1.1.5)
+      rdf-reasoner (~> 0.3)
+      rdf-tabular (~> 0.3)
+      rdf-trig (~> 1.99, >= 1.99.0.1)
+      rdf-trix (~> 1.99)
+      rdf-turtle (~> 1.99)
+      rdf-vocab (~> 0.8, >= 0.8.6)
+      rdf-xsd (~> 1.1, >= 1.1.5)
+      sparql (~> 1.99)
+      sparql-client (~> 1.99)
     local_time (1.0.3)
       coffee-rails
     logger (1.2.8)
@@ -324,11 +353,53 @@ GEM
       link_header (~> 0.0, >= 0.0.8)
     rdf-aggregate-repo (1.99.0)
       rdf (~> 1.99)
+    rdf-isomorphic (1.99.0)
+      rdf (~> 1.99)
+    rdf-json (1.99.0)
+      rdf (~> 1.99)
+    rdf-microdata (2.0.2)
+      htmlentities (~> 4.3)
+      nokogiri (~> 1.6)
+      rdf (~> 1.1)
+      rdf-xsd (~> 1.1)
+    rdf-n3 (1.99.0)
+      rdf (~> 1.99)
+    rdf-rdfa (1.99.0)
+      haml (~> 4.0)
+      htmlentities (~> 4.3)
+      rdf (~> 1.99)
+      rdf-aggregate-repo (~> 1.1)
+      rdf-xsd (~> 1.1)
+    rdf-rdfxml (1.99.0)
+      htmlentities (~> 4.3)
+      rdf (~> 1.99)
+      rdf-rdfa (~> 1.99)
+      rdf-xsd (~> 1.99)
+    rdf-reasoner (0.3.0)
+      rdf (~> 1.1, >= 1.1.4.2)
+      rdf-turtle (~> 1.1)
+      rdf-vocab (~> 0.8)
+      rdf-xsd (~> 1.1)
+    rdf-tabular (0.3.0)
+      addressable (~> 2.3)
+      bcp47 (~> 0.3, >= 0.3.3)
+      json-ld (~> 1.1)
+      rdf (~> 1.1, >= 1.1.7)
+      rdf-vocab (~> 0.8)
+      rdf-xsd (~> 1.1)
+    rdf-trig (1.99.0.1)
+      ebnf (~> 1.0)
+      rdf (~> 1.99)
+      rdf-turtle (~> 1.99)
+    rdf-trix (1.99.0)
+      rdf (~> 1.1)
     rdf-turtle (1.99.0)
       ebnf (~> 1.0)
       rdf (~> 1.99)
-    rdf-xsd (1.1.5)
-      rdf (~> 1.1, >= 1.1.9)
+    rdf-vocab (0.8.7.1)
+      rdf (~> 1.1, >= 1.1.10)
+    rdf-xsd (1.99.0)
+      rdf (~> 1.99)
     redcarpet (3.3.3)
     ref (2.0.0)
     render_anywhere (0.0.12)
@@ -509,6 +580,7 @@ DEPENDENCIES
   json_spec
   launchy
   less-rails
+  linkeddata
   local_time
   logger
   net-http-digest_auth!
@@ -525,8 +597,6 @@ DEPENDENCIES
   progress_bar
   rails (~> 4.2)
   rails-jquery-autocomplete
-  rdf
-  rdf-turtle
   render_anywhere
   responders
   rest-client
@@ -541,8 +611,6 @@ DEPENDENCIES
   simple_form
   simple_memoize
   simplecov
-  sparql
-  sparql-client
   spring
   spring-commands-cucumber
   sunspot_rails

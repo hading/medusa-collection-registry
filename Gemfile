@@ -96,10 +96,7 @@ gem 'progress_bar'
 
 gem 'render_anywhere', require: false
 
-gem 'rdf'
-gem 'rdf-turtle'
-gem 'sparql'
-gem 'sparql-client'
+gem 'linkeddata'
 
 group :development, :test do
   gem 'rspec-rails'
