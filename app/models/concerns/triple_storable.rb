@@ -86,6 +86,9 @@ module TripleStorable
   # ?sub <owned_pred_n> ?obj_n
   # I don't think there is any way to match the predicates on prefix
   # so we can just delete all in the medusa namespace
+  # I don't know if sparql-client supports this except via submission
+  # of an explicit sparql string. However, if the above is correct
+  # I don't think there are any gotchas in constructing that string.
   def remove_rdf
 
   end
