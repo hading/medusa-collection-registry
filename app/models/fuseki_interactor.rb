@@ -38,6 +38,9 @@ class FusekiInteractor < Object
 
   def insert(rdf_graph)
     self.update_client.insert_data(rdf_graph)
+  rescue Net::HTTP::Persistent::Error
+    self.update_client = SPARQL::Client.new(self.update_url)
+    insert(rdf_graph)
   end
 
   def insert_many(rdf_graph_collection)
