@@ -81,9 +81,9 @@ module TripleStorable
   # DELETE
   # ?sub <medusa_class> my-class
   # ?sub <medusa_id> my-id
-  # ?sub <owned_pred_1> ?obj
+  # ?sub <owned_pred_1> ?obj_1
   # ...
-  # ?sub <owned_pred_n> ?obj
+  # ?sub <owned_pred_n> ?obj_n
   # I don't think there is any way to match the predicates on prefix
   # so we can just delete all in the medusa namespace
   def remove_rdf
