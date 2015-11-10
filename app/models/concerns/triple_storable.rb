@@ -6,7 +6,7 @@ module TripleStorable
 
   included do
     class_attribute :predicate_method_hash, :owner_associations, :config
-    self.config = YAML.load(File.join(Rails.root, 'config', 'triple_store.yml'))
+    self.config = YAML.load_file(File.join(Rails.root, 'config', 'triple_store.yml'))
     rdf_fields {}
     rdf_owners
     delegate :medusa_base_url, :medusa_rdf_prefix, to: :class
