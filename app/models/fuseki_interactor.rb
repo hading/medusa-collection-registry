@@ -5,7 +5,7 @@ class FusekiInteractor < Object
   attr_accessor :url, :config
 
   def initialize
-    self.config = YAML.load(File.join(Rails.root, 'config', 'triple_store.yml'))
+    self.config = YAML.load_file(File.join(Rails.root, 'config', 'triple_store.yml'))
     self.url = config[Rails.env]['triple_store_base_url']
   end
 
