@@ -19,7 +19,7 @@ class CfsFile < ActiveRecord::Base
 
   has_many :red_flags, as: :red_flaggable, dependent: :destroy
 
-  delegate :repository, :file_group, :public?, to: :cfs_directory
+  delegate :repository, :collection, :file_group, :public?, to: :cfs_directory
   delegate :name, to: :content_type, prefix: true, allow_nil: true
 
   validates_uniqueness_of :name, scope: :cfs_directory_id, allow_blank: false
@@ -37,9 +37,18 @@ class CfsFile < ActiveRecord::Base
   cascades_events parent: :cfs_directory
   cascades_red_flags parent: :cfs_directory
 
-  searchable do
+  searchable include: {cfs_directory: {root_cfs_directory: {parent_file_group: :collection}}} do
     text :name
     string :name, stored: true
+    string :path do
+      cfs_directory.path
+    end
+    string :collection_title do
+      collection.try(:title)
+    end
+    string :file_group_title do
+      file_group.try(:title)
+    end
   end
 
   rdf_owners :cfs_directory

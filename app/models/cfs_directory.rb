@@ -2,8 +2,6 @@ require 'pathname'
 require 'set'
 class CfsDirectory < ActiveRecord::Base
 
-  attr_accessor :skip_assessment
-
   include Uuidable
   include Breadcrumb
   include Eventable
@@ -35,7 +33,7 @@ class CfsDirectory < ActiveRecord::Base
   validates :root_cfs_directory_id, presence: true, if: Proc.new { |record| record.parent_type == 'CfsDirectory' }
   validates :root_cfs_directory_id, presence: true, unless: Proc.new { |record| record.parent_type == 'CfsDirectory' }, on: :update
   after_save :ensure_root
-  after_save :handle_cfs_assessment, unless: :skip_assessment
+  after_update :handle_cfs_assessment
 
   breadcrumbs parent: :parent, label: :path
   cascades_events parent: :parent
@@ -43,6 +41,17 @@ class CfsDirectory < ActiveRecord::Base
 
   rdf_owners :parent
   rdf_fields :path, :relative_path
+
+  searchable include: {root_cfs_directory: {parent_file_group: :collection}} do
+    text :path
+    string :path, stored: true
+    string :collection_title do
+      collection.try(:title)
+    end
+    string :file_group_title do
+      file_group.try(:title)
+    end
+  end
 
   #ensures that for FileGroup subclasses that we use FileGroup so that STI/polymorphism combination works properly
   def parent_type=(type)

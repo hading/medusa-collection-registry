@@ -100,8 +100,11 @@ MedusaCollectionRegistry::Application.routes.draw do
     post :new_reason, on: :collection
   end
   resources :searches, only: [] do
-    post :filename, on: :collection
-    get :filename, on: :collection
+    post :search, on: :collection
+    get :search, on: :collection
+    %i(cfs_file cfs_directory item file_group collection).each do |action|
+      get action, on: :collection
+    end
   end
   resources :accruals, only: [] do
     get :update_display, on: :member

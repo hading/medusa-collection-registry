@@ -8,3 +8,4 @@ medusa.yml
 smtp.yml
 newrelic.yml
 triple_store.yml
+idb.yml

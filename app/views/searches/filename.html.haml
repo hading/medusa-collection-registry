@@ -1,8 +1,0 @@
-- if @cfs_files.blank?
-  No files found with name #{@search_string}.
-- else
-  %p
-    #{@solr_search.total} #{'result'.pluralize(@solr_search.total)} found.
-  = render partial: 'cfs_files/table'
-  = will_paginate @cfs_files, renderer: BootstrapPagination::Rails, params: {search: {filename: @search_string}}
-

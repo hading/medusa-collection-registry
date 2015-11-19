@@ -47,6 +47,15 @@ class FileGroup < ActiveRecord::Base
   rdf_owners :collection
   rdf_fields :title
 
+  searchable do
+    text :title
+    string :title
+    text :description
+    string :description
+    text :external_id
+    string :external_id
+  end
+
   STORAGE_LEVEL_HASH = {'external' => 'ExternalFileGroup',
                         'bit-level store' => 'BitLevelFileGroup',
                         'object-level store' => 'ObjectLevelFileGroup'}

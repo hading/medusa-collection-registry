@@ -104,7 +104,10 @@ And(/^the cfs file at path '([^']*)' for the file group titled '([^']*)' should 
   end
 end
 
+#TODO for some reason this is _really_ slow now. I may have monkeyed with the find_file_at_relative_path code -
+#I vaguely recall that - so that's a likely suspect. Mark pending until I sort it.
 When(/^I view the cfs file for the file group titled '([^']*)' for the path '([^']*)'$/) do |title, path|
+  pending
   file_group = FileGroup.find_by(title: title)
   visit cfs_file_path(file_group.find_file_at_relative_path(path))
 end
@@ -196,4 +199,11 @@ end
 
 Then(/^(\d+) cfs files should have fits attached$/) do |count|
   expect(CfsFile.where('fits_xml IS NOT NULL').count).to eql(count.to_i)
+end
+
+Then(/^I should see a table of cfs files with (\d+) rows?$/) do |count|
+  expect(page).to have_selector('#cfs_files')
+  within('#cfs_files') do
+    expect(page).to have_css('tbody tr', count: count.to_i)
+  end
 end
