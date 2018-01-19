@@ -18,7 +18,7 @@ class CreateLogicalExtensions < ActiveRecord::Migration[5.1]
 
     FileFormatProfilesFileExtensionsJoin.all.each do |join|
       file_extension = join.file_extension
-      logical_extension = LogicalExtension.find_or_create_by(extension: file_extension.extension, description: '')
+      logical_extension = LogicalExtension.find_or_create_by(extension: file_extension.extension.strip, description: '')
       FileFormatProfilesLogicalExtensionsJoin.create(file_format_profile: join.file_format_profile, logical_extension: logical_extension)
     end
 

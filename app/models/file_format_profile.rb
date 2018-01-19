@@ -8,8 +8,6 @@ class FileFormatProfile < ApplicationRecord
 
   has_many :file_format_profiles_content_types_joins, dependent: :destroy
   has_many :content_types, -> { order 'name asc' }, through: :file_format_profiles_content_types_joins
-  has_many :file_format_profiles_file_extensions_joins, dependent: :destroy
-  has_many :file_extensions, -> { order 'extension asc' }, through: :file_format_profiles_file_extensions_joins
   has_many :file_format_profiles_logical_extensions_joins, dependent: :destroy
   has_many :logical_extensions, -> {order 'extension asc, description asc'}, through: :file_format_profiles_logical_extensions_joins
   has_many :file_formats_file_format_profiles_joins, dependent: :destroy
@@ -26,8 +24,19 @@ class FileFormatProfile < ApplicationRecord
       clone.name = clone.name + ' (new)'
       clone.save!
       clone.content_types = self.content_types
-      clone.file_extensions = self.file_extensions
       clone.logical_extensions = self.logical_extensions
+    end
+  end
+
+  def logical_extensions_string
+    logical_extensions.collect {|extension| extension.label}.join(', ')
+  end
+
+  def logical_extensions_string=(extensions)
+    if extensions.strip.blank?
+      self.logical_extensions = []
+    else
+      self.logical_extensions = extensions.split(',').collect {|ext| LogicalExtension.ensure_extension(ext)}
     end
   end
 

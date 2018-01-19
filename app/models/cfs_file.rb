@@ -278,7 +278,7 @@ class CfsFile < ApplicationRecord
   end
 
   def random_file_format_profile
-    file_extension_profiles = self.file_extension.file_format_profiles.active.to_set
+    file_extension_profiles = self.file_extension.active_logical_profiles.to_set
     content_type_profiles = self.content_type.file_format_profiles.active.to_set
     file_extension_profiles.intersection(content_type_profiles).to_a.sample ||
         file_extension_profiles.union(content_type_profiles).to_a.sample

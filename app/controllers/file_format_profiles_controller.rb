@@ -61,8 +61,8 @@ class FileFormatProfilesController < ApplicationController
   end
 
   def allowed_params
-    params[:file_format_profile].permit(:name, :status, :software, :software_version, :os_environment, :os_version, :notes, file_format_ids: [],
-                                        content_type_ids: [], file_extension_ids: [])
+    params[:file_format_profile].permit(:name, :status, :software, :software_version, :os_environment, :os_version,
+                                        :notes, :logical_extensions_string, file_format_ids: [], content_type_ids: [])
   end
 
 end
