@@ -209,6 +209,50 @@ $$;
 
 
 --
+-- Name: cfs_directory_relative_path(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION cfs_directory_relative_path(integer) RETURNS text
+    LANGUAGE sql
+    AS $_$
+
+SELECT CASE WHEN (SELECT parent_type
+                  FROM cfs_directories
+                  WHERE id = $1) = 'FileGroup'
+
+  THEN
+
+    (SELECT path
+     FROM cfs_directories
+     WHERE id = $1)
+
+       ELSE
+
+         (SELECT concat(cfs_directory_relative_path(parent_id), '/', path)
+          FROM cfs_directories
+          WHERE id = $1)
+
+       END
+
+$_$;
+
+
+--
+-- Name: cfs_file_relative_path(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION cfs_file_relative_path(integer) RETURNS text
+    LANGUAGE sql
+    AS $_$
+
+SELECT concat(cfs_directory_relative_path(cfs_directory_id), '/', name)
+FROM cfs_files
+WHERE id = $1;
+
+$_$;
+
+
+--
 -- Name: cfs_file_update_cfs_directory_and_extension_and_content_type(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2288,6 +2332,38 @@ ALTER SEQUENCE file_format_profiles_id_seq OWNED BY file_format_profiles.id;
 
 
 --
+-- Name: file_format_profiles_logical_extensions_joins; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE file_format_profiles_logical_extensions_joins (
+    id bigint NOT NULL,
+    file_format_profile_id bigint,
+    logical_extension_id bigint,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: file_format_profiles_logical_extensions_joins_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE file_format_profiles_logical_extensions_joins_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: file_format_profiles_logical_extensions_joins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE file_format_profiles_logical_extensions_joins_id_seq OWNED BY file_format_profiles_logical_extensions_joins.id;
+
+
+--
 -- Name: file_format_test_reasons; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3128,6 +3204,36 @@ ALTER SEQUENCE job_virus_scans_id_seq OWNED BY job_virus_scans.id;
 
 
 --
+-- Name: logical_extensions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE logical_extensions (
+    id bigint NOT NULL,
+    extension character varying,
+    description character varying DEFAULT ''::character varying
+);
+
+
+--
+-- Name: logical_extensions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE logical_extensions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: logical_extensions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE logical_extensions_id_seq OWNED BY logical_extensions.id;
+
+
+--
 -- Name: medusa_uuids; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3139,25 +3245,6 @@ CREATE TABLE medusa_uuids (
     created_at timestamp without time zone,
     updated_at timestamp without time zone
 );
-
-
---
--- Name: medusa_uuids_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE medusa_uuids_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: medusa_uuids_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE medusa_uuids_id_seq OWNED BY medusa_uuids.id;
 
 
 --
@@ -3186,6 +3273,74 @@ CREATE TABLE repositories (
     ldap_admin_group character varying(255),
     institution_id integer
 );
+
+
+--
+-- Name: view_cfs_files_to_parents; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW view_cfs_files_to_parents AS
+ SELECT f.id AS cfs_file_id,
+    d.id AS cfs_directory_id,
+    rd.id AS root_cfs_directory_id,
+    fg.id AS file_group_id,
+    c.id AS collection_id,
+    r.id AS repository_id,
+    r.institution_id
+   FROM cfs_files f,
+    cfs_directories d,
+    cfs_directories rd,
+    file_groups fg,
+    collections c,
+    repositories r
+  WHERE ((f.cfs_directory_id = d.id) AND (d.root_cfs_directory_id = rd.id) AND (rd.parent_id = fg.id) AND (fg.collection_id = c.id) AND (c.repository_id = r.id));
+
+
+--
+-- Name: md5_duplicates; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW md5_duplicates AS
+ SELECT f.md5_sum,
+    v.cfs_file_id,
+    v.cfs_directory_id,
+    v.file_group_id,
+    v.collection_id,
+    v.repository_id,
+    u.uuid,
+    f.name,
+    cfs_file_relative_path(f.id) AS relative_path,
+    c.name AS content_type,
+    f.mtime
+   FROM view_cfs_files_to_parents v,
+    cfs_files f,
+    medusa_uuids u,
+    content_types c
+  WHERE ((f.id = v.cfs_file_id) AND ((u.uuidable_type)::text = 'CfsFile'::text) AND (u.uuidable_id = f.id) AND (f.content_type_id = c.id) AND ((f.md5_sum)::text IN ( SELECT duplicates.md5_sum
+           FROM ( SELECT cfs_files.md5_sum,
+                    count(*) AS count
+                   FROM cfs_files
+                  GROUP BY cfs_files.md5_sum
+                 HAVING (count(*) > 1)) duplicates)));
+
+
+--
+-- Name: medusa_uuids_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE medusa_uuids_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: medusa_uuids_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE medusa_uuids_id_seq OWNED BY medusa_uuids.id;
 
 
 --
@@ -3850,27 +4005,6 @@ CREATE VIEW view_cfs_directories_inconsistent_file_stats AS
     view_cfs_directories_file_stats_two_ways.computed_size
    FROM view_cfs_directories_file_stats_two_ways
   WHERE ((view_cfs_directories_file_stats_two_ways.tree_count <> view_cfs_directories_file_stats_two_ways.computed_count) OR (view_cfs_directories_file_stats_two_ways.tree_size <> view_cfs_directories_file_stats_two_ways.computed_size));
-
-
---
--- Name: view_cfs_files_to_parents; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW view_cfs_files_to_parents AS
- SELECT f.id AS cfs_file_id,
-    d.id AS cfs_directory_id,
-    rd.id AS root_cfs_directory_id,
-    fg.id AS file_group_id,
-    c.id AS collection_id,
-    r.id AS repository_id,
-    r.institution_id
-   FROM cfs_files f,
-    cfs_directories d,
-    cfs_directories rd,
-    file_groups fg,
-    collections c,
-    repositories r
-  WHERE ((f.cfs_directory_id = d.id) AND (d.root_cfs_directory_id = rd.id) AND (rd.parent_id = fg.id) AND (fg.collection_id = c.id) AND (c.repository_id = r.id));
 
 
 --
@@ -4619,6 +4753,13 @@ ALTER TABLE ONLY file_format_profiles_file_extensions_joins ALTER COLUMN id SET 
 
 
 --
+-- Name: file_format_profiles_logical_extensions_joins id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY file_format_profiles_logical_extensions_joins ALTER COLUMN id SET DEFAULT nextval('file_format_profiles_logical_extensions_joins_id_seq'::regclass);
+
+
+--
 -- Name: file_format_test_reasons id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -4791,6 +4932,13 @@ ALTER TABLE ONLY job_sunspot_reindices ALTER COLUMN id SET DEFAULT nextval('job_
 --
 
 ALTER TABLE ONLY job_virus_scans ALTER COLUMN id SET DEFAULT nextval('job_virus_scans_id_seq'::regclass);
+
+
+--
+-- Name: logical_extensions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY logical_extensions ALTER COLUMN id SET DEFAULT nextval('logical_extensions_id_seq'::regclass);
 
 
 --
@@ -5205,6 +5353,14 @@ ALTER TABLE ONLY file_format_profiles_file_extensions_joins
 
 
 --
+-- Name: file_format_profiles_logical_extensions_joins file_format_profiles_logical_extensions_joins_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY file_format_profiles_logical_extensions_joins
+    ADD CONSTRAINT file_format_profiles_logical_extensions_joins_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: file_format_profiles file_format_profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5410,6 +5566,14 @@ ALTER TABLE ONLY job_sunspot_reindices
 
 ALTER TABLE ONLY job_virus_scans
     ADD CONSTRAINT job_virus_scans_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: logical_extensions logical_extensions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY logical_extensions
+    ADD CONSTRAINT logical_extensions_pkey PRIMARY KEY (id);
 
 
 --
@@ -5719,6 +5883,20 @@ CREATE INDEX ffpfej_file_extension_id_idx ON file_format_profiles_file_extension
 --
 
 CREATE INDEX ffpfej_file_format_profile_id_idx ON file_format_profiles_file_extensions_joins USING btree (file_format_profile_id);
+
+
+--
+-- Name: ffplej_file_format_profile_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ffplej_file_format_profile_id_idx ON file_format_profiles_logical_extensions_joins USING btree (file_format_profile_id);
+
+
+--
+-- Name: ffplej_logical_extension_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ffplej_logical_extension_id_idx ON file_format_profiles_logical_extensions_joins USING btree (logical_extension_id);
 
 
 --
@@ -6496,6 +6674,13 @@ CREATE INDEX index_job_report_producers_on_user_id ON job_report_producers USING
 --
 
 CREATE INDEX index_job_virus_scans_on_updated_at ON job_virus_scans USING btree (updated_at);
+
+
+--
+-- Name: index_logical_extensions_on_extension_and_description; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_logical_extensions_on_extension_and_description ON logical_extensions USING btree (extension, description);
 
 
 --
@@ -7857,6 +8042,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171012153758'),
 ('20171113212259'),
 ('20171116203856'),
-('20171117201629');
+('20171117201629'),
+('20180119174156');
 
 
