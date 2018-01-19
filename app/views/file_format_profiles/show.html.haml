@@ -26,9 +26,9 @@
       .panel.panel-default
         .panel-heading
           %h4 File Extensions:
-        - if @file_format_profile.file_extensions.present?
+        - if @file_format_profile.logical_extensions.present?
           %ul.list-group
-            - @file_format_profile.file_extensions.order('extension asc').each do |extension|
-              %li.list-group-item= extension.extension_label
+            - @file_format_profile.logical_extensions.each do |extension|
+              %li.list-group-item= extension.label
         - else
           .panel-body None

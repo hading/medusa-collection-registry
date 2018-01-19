@@ -118,14 +118,14 @@ Feature: File Format Profiles
 
   Scenario: Associate with file extensions
     When I edit the file format profile with name 'images'
-    And I check 'jpg'
-    And I check 'xml'
+    And I fill in fields:
+      | Logical extensions | xml, jpg (desc) |
     And I click on 'Update'
     Then I should see all of:
-      | jpg | xml |
+      | jpg (desc) | xml |
     When I go to the file format profiles index page
     Then I should see all of:
-      | jpg | xml |
+      | jpg (desc) | xml |
 
   Scenario: Enforce permissions
     Then deny object permission on the file format profile with name 'images' to users for action with redirection:
