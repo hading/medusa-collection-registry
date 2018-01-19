@@ -10,6 +10,8 @@ class FileFormatProfile < ApplicationRecord
   has_many :content_types, -> { order 'name asc' }, through: :file_format_profiles_content_types_joins
   has_many :file_format_profiles_file_extensions_joins, dependent: :destroy
   has_many :file_extensions, -> { order 'extension asc' }, through: :file_format_profiles_file_extensions_joins
+  has_many :file_format_profiles_logical_extensions_joins, dependent: :destroy
+  has_many :logical_extensions, -> {order 'extension asc, description asc'}, through: :file_format_profiles_logical_extensions_joins
   has_many :file_formats_file_format_profiles_joins, dependent: :destroy
   has_many :file_formats, through: :file_formats_file_format_profiles_joins
 
@@ -25,6 +27,7 @@ class FileFormatProfile < ApplicationRecord
       clone.save!
       clone.content_types = self.content_types
       clone.file_extensions = self.file_extensions
+      clone.logical_extensions = self.logical_extensions
     end
   end
 
