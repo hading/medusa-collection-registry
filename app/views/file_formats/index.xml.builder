@@ -19,8 +19,8 @@ xml.file_formats do
               end
             end
             xml.extensions do
-              profile.file_extensions.each do |extension|
-                xml.extension extension.extension
+              profile.logical_extensions.each do |extension|
+                xml.extension extension.label
               end
             end
           end
