@@ -56,7 +56,7 @@ class SessionsController < ApplicationController
       settings.soft = false
       settings.certificate = File.read('/etc/shibboleth/sp-cert.pem')
       settings.private_key = File.read('/home/lib-medusa-collectionregistry/etc/sp-key.pem')
-      settings.assertion_consumer_service_url = "http://#{request.host}/login_create_saml"
+      settings.assertion_consumer_service_url = "https://#{request.host}/login_create_saml"
       #settings.issuer                         = "http://#{request.host}/saml/metadata"
       settings.name_identifier_format         = "urn:oasis:names:tc:SAML:1.1:nameid-format:transient"
     end
