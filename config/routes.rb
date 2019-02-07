@@ -13,6 +13,10 @@ Rails.application.routes.draw do
   match '/unauthorized', to: 'sessions#unauthorized', as: :unauthorized, via: [:get, :post]
   match '/unauthorized_net_id', to: 'sessions#unauthorized_net_id', as: :unauthorized_net_id, via: [:get, :post]
 
+  #ruby-saml testing
+  match '/login_new_saml', to: 'sessions#new_saml', via: [:get, :post]
+  match '/login_create_saml', to: 'sessions#create_saml', via: [:get, :post]
+
   #This lets us start up in a mode where only a down page is shown
   if ENV['MEDUSA_DOWN'] == 'true'
     match '*path' => redirect('/static_pages/down', status: 307), via: :all

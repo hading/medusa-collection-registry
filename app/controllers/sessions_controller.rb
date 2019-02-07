@@ -40,6 +40,14 @@ class SessionsController < ApplicationController
     @net_id = params[:net_id]
   end
 
+  def new_saml
+    render text: 'Login via ruby-saml'
+  end
+
+  def create_saml
+    render text: 'Create session via ruby-saml'
+  end
+
   protected
 
   def clear_and_return_return_path
