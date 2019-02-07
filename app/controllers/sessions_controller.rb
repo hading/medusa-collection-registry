@@ -59,7 +59,7 @@ class SessionsController < ApplicationController
       settings.assertion_consumer_service_url = "https://medusatest.library.illinois.edu/login_create_saml"
       settings.issuer = "https://medusa-dev.library.illinois.edu/shibboleth"
       #settings.issuer                         = "http://#{request.host}/saml/metadata"
-      settings.name_identifier_format         = "urn:oasis:names:tc:SAML:1.1:nameid-format:transient"
+      settings.name_identifier_format = "urn:oasis:names:tc:SAML:1.1:nameid-format:transient"
     end
     # OneLogin::RubySaml::Settings.new.tap do |settings|
     #   settings.soft = false
@@ -87,22 +87,20 @@ class SessionsController < ApplicationController
 
 
   end
+  
 
+  protected
 
-end
+  def clear_and_return_return_path
+    return_url = session[:login_return_uri] || session[:login_return_referer] || root_path
+    session[:login_return_uri] = session[:login_return_referer] = nil
+    reset_ldap_cache(current_user)
+    reset_session
+    return_url
+  end
 
-protected
-
-def clear_and_return_return_path
-  return_url = session[:login_return_uri] || session[:login_return_referer] || root_path
-  session[:login_return_uri] = session[:login_return_referer] = nil
-  reset_ldap_cache(current_user)
-  reset_session
-  return_url
-end
-
-def shibboleth_login_path(host)
-  "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback"
-end
+  def shibboleth_login_path(host)
+    "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback"
+  end
 
 end
