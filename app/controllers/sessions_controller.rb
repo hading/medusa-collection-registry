@@ -46,7 +46,17 @@ class SessionsController < ApplicationController
   end
 
   def create_saml
-    render plain: 'Create session via ruby-saml'
+    response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], :settings => saml_settings)
+
+    # We validate the SAML Response and check if the user already exists in the system
+    if response.is_valid?
+      render plain: response.inspect
+      # authorize_success, log the user
+      #session[:userid] = response.nameid
+      #session[:attributes] = response.attributes
+    else
+      #authorize_failure  # This method shows an error message
+    end
   end
 
   def saml_settings
@@ -87,7 +97,7 @@ class SessionsController < ApplicationController
 
 
   end
-  
+
 
   protected
 
