@@ -41,11 +41,11 @@ class SessionsController < ApplicationController
   end
 
   def new_saml
-    render text: 'Login via ruby-saml'
+    render plain: 'Login via ruby-saml'
   end
 
   def create_saml
-    render text: 'Create session via ruby-saml'
+    render plain: 'Create session via ruby-saml'
   end
 
   protected
