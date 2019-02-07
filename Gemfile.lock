@@ -485,6 +485,8 @@ GEM
     rspec-support (3.8.0)
     rsync (1.0.9)
     ruby-filemagic (0.7.2)
+    ruby-saml (1.9.0)
+      nokogiri (>= 1.5.10)
     ruby_parser (3.12.0)
       sexp_processor (~> 4.9)
     rubyzip (1.2.2)
@@ -653,6 +655,7 @@ DEPENDENCIES
   rspec-rails
   rsync
   ruby-filemagic
+  ruby-saml
   sass
   sass-rails
   selenium-webdriver

@@ -137,6 +137,8 @@ gem 'hex_string'
 
 gem 'browser'
 
+gem 'ruby-saml'
+
 group :development, :test do
   gem 'rspec-rails'
   gem 'factory_bot_rails'
