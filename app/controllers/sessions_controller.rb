@@ -63,10 +63,10 @@ class SessionsController < ApplicationController
     idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
     idp_metadata_parser.parse(File.read('/etc/shibboleth/itrust-metadata.xml'),
                               entity_id: "urn:mace:incommon:uiuc.edu").tap do |settings|
-      settings.soft = false
+      #settings.soft = false
       settings.certificate = File.read('/etc/shibboleth/sp-cert.pem')
       settings.private_key = File.read('/home/lib-medusa-collectionregistry/etc/sp-key.pem')
-      settings.assertion_consumer_service_url = "https://medusatest.library.illinois.edu/login_create_saml"
+      settings.assertion_consumer_service_url = "https://medusa-dev.library.illinois.edu/login_create_saml"
       #settings.issuer = "https://medusa-dev.library.illinois.edu/shibboleth"
       #settings.issuer                         = "http://#{request.host}/saml/metadata"
       settings.name_identifier_format = "urn:oasis:names:tc:SAML:1.1:nameid-format:transient"
