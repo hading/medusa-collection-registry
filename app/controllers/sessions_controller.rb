@@ -41,11 +41,13 @@ class SessionsController < ApplicationController
   end
 
   def new_saml
+    render plain: 'new' and return
     request = OneLogin::RubySaml::Authrequest.new
     redirect_to(request.create(saml_settings))
   end
 
   def create_saml
+    render plain: 'create' and return
     response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], :settings => saml_settings)
 
     # We validate the SAML Response and check if the user already exists in the system
