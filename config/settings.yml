@@ -339,6 +339,7 @@ medusa:
   fg_delete:
     amazon_backup_on_restore: true
     final_deletion_interval: <%= 120.days %>
+  passive_shibboleth_sessions: false
   wiki_url: https://wiki.cites.uiuc.edu/wiki/display/LibraryDigitalPreservation/Home
 
 
