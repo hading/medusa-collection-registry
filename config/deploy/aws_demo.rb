@@ -31,6 +31,7 @@ server 'aws-medusa-demo.library.illinois.edu', user: 'medusa', roles: %w{web app
            :keepalive => true,
            :keepalive_interval => 30 #seconds
        }
+ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call
 
 # Custom SSH Options
 # ==================
