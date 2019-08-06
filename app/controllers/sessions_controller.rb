@@ -1,11 +1,13 @@
 class SessionsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
+  skip_before_action :try_to_establish_session_from_passive_shibboleth
+  delegate :shibboleth_login_path, to: :class
 
   def new
     session[:login_return_referer] = request.env['HTTP_REFERER']
     if Rails.env.production?
-      redirect_to(shibboleth_login_path(MedusaCollectionRegistry::Application.shibboleth_host))
+      redirect_to(shibboleth_login_path)
     else
       redirect_to('/auth/developer')
     end
@@ -40,6 +42,12 @@ class SessionsController < ApplicationController
     @net_id = params[:net_id]
   end
 
+  def self.shibboleth_login_path(host: nil, passive: false, target_path: '/auth/shibboleth/callback')
+    host ||= MedusaCollectionRegistry::Application.shibboleth_host
+    passive = !!passive #just normalizing this
+    "/Shibboleth.sso/Login?target=https://#{host}#{target_path}&isPassive=#{passive}"
+  end
+
   protected
 
   def clear_and_return_return_path
@@ -50,8 +58,5 @@ class SessionsController < ApplicationController
     return_url
   end
 
-  def shibboleth_login_path(host)
-    "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback"
-  end
 
 end

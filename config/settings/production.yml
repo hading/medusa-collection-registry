@@ -1,2 +1,4 @@
 #see development.yml for a template.
 #You should use the settings/<env>.local.yml for actual configuration
+medusa:
+  passive_shibboleth_sessions: true
