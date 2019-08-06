@@ -23,9 +23,6 @@ class SessionsController < ApplicationController
       reset_ldap_cache(user)
       set_current_user(user)
       redirect_to return_url
-    elsif session[:attempting_passive_shibboleth_login]
-      session[:attempting_passive_shibboleth_login] = false
-      redirect_to session[:login_return_uri]
     else
       redirect_to login_url
     end
@@ -45,9 +42,9 @@ class SessionsController < ApplicationController
     @net_id = params[:net_id]
   end
 
-  def self.shibboleth_login_path(host, passive: false)
+  def self.shibboleth_login_path(host, passive: false, target_path: '/auth/shibboleth/callback')
     passive = !!passive #just normalizing this
-    "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback&isPassive=#{passive}"
+    "/Shibboleth.sso/Login?target=https://#{host}#{target_path}&isPassive=#{passive}"
   end
 
   protected
