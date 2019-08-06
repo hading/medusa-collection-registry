@@ -2,6 +2,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   helper_method :current_user, :medusa_user?, :safe_can?
 
+  before_action :try_to_establish_session_from_passive_shibboleth
+
   protected
 
   def set_current_user(user)
@@ -100,6 +102,16 @@ class ApplicationController < ActionController::Base
   #Use in place of Cancan's can? so that it will work when there is not a user (in this case permission is denied, as you'd expect)
   def safe_can?(action, *args)
     current_user and can?(action, *args)
+  end
+
+  def try_to_establish_session_from_passive_shibboleth
+    return if current_user || !passive_session_present?
+    session[:login_return_uri] = request.env['REQUEST_URI']
+    redirect_to login_callback_path(provider: :shibboleth)
+  end
+
+  def passive_session_present?
+    request.env['HTTP_EPPN'].present?
   end
 
 end

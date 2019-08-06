@@ -7,7 +7,7 @@ Rails.application.routes.draw do
       post :request_training
     end
   end
-  match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post]
+  match '/auth/:provider/callback', to: 'sessions#create', via: [:get, :post], as: :login_callback
   match '/login', to: 'sessions#new', as: :login, via: [:get, :post]
   match '/logout', to: 'sessions#destroy', as: :logout, via: [:get, :post]
   match '/unauthorized', to: 'sessions#unauthorized', as: :unauthorized, via: [:get, :post]
