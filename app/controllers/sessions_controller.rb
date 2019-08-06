@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
+  skip_before_action :try_to_establish_session_from_passive_shibboleth
+  delegate :shibboleth_login_path, to: :class
 
   def new
     session[:login_return_referer] = request.env['HTTP_REFERER']
@@ -21,6 +23,9 @@ class SessionsController < ApplicationController
       reset_ldap_cache(user)
       set_current_user(user)
       redirect_to return_url
+    elsif session[:attempting_passive_shibboleth_login]
+      session[:attempting_passive_shibboleth_login] = false
+      redirect_to session[:login_return_uri]
     else
       redirect_to login_url
     end
@@ -40,6 +45,11 @@ class SessionsController < ApplicationController
     @net_id = params[:net_id]
   end
 
+  def self.shibboleth_login_path(host, passive: false)
+    passive = !!passive #just normalizing this
+    "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback&isPassive=#{passive}"
+  end
+
   protected
 
   def clear_and_return_return_path
@@ -50,8 +60,5 @@ class SessionsController < ApplicationController
     return_url
   end
 
-  def shibboleth_login_path(host)
-    "/Shibboleth.sso/Login?target=https://#{host}/auth/shibboleth/callback"
-  end
 
 end

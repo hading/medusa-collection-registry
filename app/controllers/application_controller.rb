@@ -105,13 +105,11 @@ class ApplicationController < ActionController::Base
   end
 
   def try_to_establish_session_from_passive_shibboleth
-    return if current_user || !passive_session_present?
+    return if current_user || session[:checked_shibboleth_passive].present?
+    session[:checked_shibboleth_passive] = true
     session[:login_return_uri] = request.env['REQUEST_URI']
-    redirect_to login_callback_path(provider: :shibboleth)
-  end
-
-  def passive_session_present?
-    request.env['HTTP_EPPN'].present?
+    session[:attempting_passive_shibboleth_login] = true
+    redirect_to SessionsController.shibboleth_login_path(MedusaCollectionRegistry::Application.shibboleth_host, passive: true)
   end
 
 end
